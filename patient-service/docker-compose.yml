@@ -1,0 +1,59 @@
+version: '3.9'
+
+services:
+
+  postgres:
+    image: postgres:16
+    container_name: patient-service-db
+    restart: always
+
+    environment:
+      POSTGRES_USER: admin_user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: db
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    ports:
+      - "5000:5432"
+
+    networks:
+      - network-internal
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  patient-service:
+    build:
+      context: .
+
+    container_name: patient-service
+    restart: always
+
+    depends_on:
+      - postgres
+
+    ports:
+      - "4000:4000"
+
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/db
+      SPRING_DATASOURCE_USERNAME: admin_user
+      SPRING_DATASOURCE_PASSWORD: password
+
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_SQL_INIT_MODE: always
+
+    networks:
+      - network-internal
+
+volumes:
+  postgres_data:
+
+networks:
+  network-internal:
+    driver: bridge
