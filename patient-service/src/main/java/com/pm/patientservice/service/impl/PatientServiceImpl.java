@@ -41,11 +41,11 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public PatientResponseDTO createPatient(PatientRequestDTO patientRequestDTO) {
         Patient newPatient = PatientMapper.toModel(patientRequestDTO);
-        if (patientRepository.existsByEmail(patientRequestDTO.getEmail())) {
-            throw new EmailAlreadyExistsException("A patient with this email " + "already exists" + patientRequestDTO.getEmail());
-        }
-        newPatient.setId(UUID.randomUUID());
-        newPatient = patientRepository.save(newPatient);
+        // if (patientRepository.existsByEmail(patientRequestDTO.getEmail())) {
+        //     throw new EmailAlreadyExistsException("A patient with this email " + "already exists" + patientRequestDTO.getEmail());
+        // }
+        // newPatient.setId(UUID.randomUUID());
+        // newPatient = patientRepository.save(newPatient);
 
         billingServiceGrpcClient.createBillingAccount(newPatient.getId().toString(), newPatient.getName(), newPatient.getEmail());
 

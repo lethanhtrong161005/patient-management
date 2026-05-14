@@ -1,7 +1,6 @@
 package com.pm.patientservice.dto.request;
 
 import java.time.Instant;
-import java.time.LocalDate;
 
 import com.pm.patientservice.vadidators.CreatePatientValidatorGroup;
 import jakarta.validation.constraints.Email;
