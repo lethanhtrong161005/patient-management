@@ -16,7 +16,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
     ports:
-      - "5000:5432"
+      - "5432:5432"
 
     networks:
       - network-internal
@@ -57,4 +57,5 @@ volumes:
 
 networks:
   network-internal:
-    driver: bridge
+    external: true
+    name: microservice-network

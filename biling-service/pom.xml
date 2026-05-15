@@ -29,19 +29,20 @@
     </scm>
     <properties>
         <java.version>21</java.version>
+        <os.detected.classifier>osx-aarch_64</os.detected.classifier>
     </properties>
     <dependencies>
 
         <dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
 
         <!--GRPC -->
         <dependency>
@@ -80,8 +81,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.30</version>
-            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
 
     </dependencies>
@@ -89,45 +89,60 @@
 
     <build>
         <extensions>
-            <!-- Ensure OS compatibility for protoc -->
             <extension>
                 <groupId>kr.motd.maven</groupId>
                 <artifactId>os-maven-plugin</artifactId>
                 <version>1.7.0</version>
             </extension>
         </extensions>
+
         <plugins>
-            <!-- Java Compiler -->
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
+
                 <configuration>
                     <source>21</source>
                     <target>21</target>
+
+                    <annotationProcessorPaths>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>1.18.38</version>
+						</path>
+					</annotationProcessorPaths>
                 </configuration>
             </plugin>
-            
-            <!-- Spring boot / maven  -->
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
-            <!-- PROTO -->
             <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
                 <version>0.6.1</version>
+
                 <configuration>
-                    <protocArtifact>com.google.protobuf:protoc:3.25.5:exe:${os.detected.classifier}</protocArtifact>
+                    <protocArtifact>
+                        com.google.protobuf:protoc:3.25.5:exe:${os.detected.classifier}
+                    </protocArtifact>
+
                     <pluginId>grpc-java</pluginId>
+
                     <pluginArtifact>
-                        io.grpc:protoc-gen-grpc-java:1.68.1:exe:${os.detected.classifier}</pluginArtifact>
+                        io.grpc:protoc-gen-grpc-java:1.68.1:exe:${os.detected.classifier}
+                    </pluginArtifact>
                 </configuration>
+
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
+
                         <goals>
                             <goal>compile</goal>
                             <goal>compile-custom</goal>
@@ -135,33 +150,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
-            <!-- M2E lifecycle mapping for IDE -->
-            <plugin>
-                <groupId>org.eclipse.m2e</groupId>
-                <artifactId>lifecycle-mapping</artifactId>
-                <version>1.0.0</version>
-                <configuration>
-                    <lifecycleMappingMetadata>
-                        <pluginExecutions>
-                            <pluginExecution>
-                                <pluginExecutionFilter>
-                                    <groupId>org.xolstice.maven.plugins</groupId>
-                                    <artifactId>protobuf-maven-plugin</artifactId>
-                                    <versionRange>[0.0.1,)</versionRange>
-                                    <goals>
-                                        <goal>compile</goal>
-                                        <goal>compile-custom</goal>
-                                    </goals>
-                                </pluginExecutionFilter>
-                                <action>
-                                    <execute/>
-                                </action>
-                            </pluginExecution>
-                        </pluginExecutions>
-                    </lifecycleMappingMetadata>
-                </configuration>
-            </plugin>
+
         </plugins>
     </build>
 

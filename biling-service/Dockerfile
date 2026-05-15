@@ -10,7 +10,7 @@ RUN mvn clean package -DskipTests
 FROM eclipse-temurin:21-jdk AS runner
 WORKDIR /app
 
-COPY --from=builder /app/target/billing-service-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=builder /app/target/*.jar app.jar
 
 ENV GRPC_SERVER_PORT=9001
 ENV SERVER_PORT=4001

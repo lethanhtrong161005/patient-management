@@ -33,19 +33,18 @@ public class PatientServiceImpl implements PatientService {
     public List<PatientResponseDTO> getPatients() {
         List<Patient> patients = patientRepository.findAll();
 
-        List<PatientResponseDTO> patientResponseDTOS = patients.stream()
-                .map(patient -> PatientMapper.toDto(patient)).toList();
-        return patientResponseDTOS;
+        return patients.stream()
+                .map(PatientMapper::toDto).toList();
     }
 
     @Override
     public PatientResponseDTO createPatient(PatientRequestDTO patientRequestDTO) {
         Patient newPatient = PatientMapper.toModel(patientRequestDTO);
-        // if (patientRepository.existsByEmail(patientRequestDTO.getEmail())) {
-        //     throw new EmailAlreadyExistsException("A patient with this email " + "already exists" + patientRequestDTO.getEmail());
-        // }
-        // newPatient.setId(UUID.randomUUID());
-        // newPatient = patientRepository.save(newPatient);
+        if (patientRepository.existsByEmail(patientRequestDTO.getEmail())) {
+            throw new EmailAlreadyExistsException("A patient with this email " + "already exists" + patientRequestDTO.getEmail());
+        }
+        newPatient.setId(UUID.randomUUID());
+        newPatient = patientRepository.save(newPatient);
 
         billingServiceGrpcClient.createBillingAccount(newPatient.getId().toString(), newPatient.getName(), newPatient.getEmail());
 
@@ -59,8 +58,9 @@ public class PatientServiceImpl implements PatientService {
         () -> new PatientNotFoundException("Patient not found with ID: " + id));
 
 
-        if (patientRepository.existsByEmail(patientRequestDTO.getEmail())) {
-            throw new EmailAlreadyExistsException("A patient with this email " + "already exists" + patientRequestDTO.getEmail());
+        if (!patient.getEmail().equals(patientRequestDTO.getEmail()) && 
+            patientRepository.existsByEmail(patientRequestDTO.getEmail())) {
+            throw new EmailAlreadyExistsException("A patient with this email already exists: " + patientRequestDTO.getEmail());
         }
 
         patient.setName(patientRequestDTO.getName());
@@ -69,12 +69,15 @@ public class PatientServiceImpl implements PatientService {
         patient.setDateOfBirth(DateTimeUtil.convertInstantToLocalDate(patientRequestDTO.getDateOfBirth()));
 
         Patient updatedPatient = patientRepository.save(patient);
-        return PatientMapper.toDto(patient);
+        return PatientMapper.toDto(updatedPatient);
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void deletePatient(UUID id) {
+        if (!patientRepository.existsById(id)) {
+            throw new PatientNotFoundException("Patient not found with ID: " + id);
+        }
         patientRepository.deleteById(id);
     }
 
